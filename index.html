@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro Timer</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="indmain.css">
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="#">Share</a></li>
+            <li><a href="todo.html">To Do List</a></li>
+            <li><a href="#">Links</a></li>
+            <li><a href="#">FAQ</a></li>
+        </ul>
+    </nav>
+
+    <div class="timer-container">
+        <video autoplay muted loop id="background-video">
+            <source src="vid_earth.mp4" type="video/mp4">
+        </video>
+        <div class="timer-box">
+            <div class="option-buttons">
+                <button class="active" id="work-btn" onclick="setWorkTimer()">Work</button>
+                <button id="break-btn" onclick="setBreakTimer()">Break</button>
+                <button id="long-break-btn" onclick="setLongBreakTimer()">Long Break</button>
+            </div>
+            <div class="timer" id="timer">25:00</div>
+            <div class="button-group">
+                <button class="start-btn" onclick="startTimer()">Start</button>
+                <button class="stop-btn" onclick="stopTimer()">Stop</button>
+                <button class="reset-btn" onclick="resetTimer()">Reset</button>
+            </div>
+            <div class="chatbot-button-container">
+                <a href="chatbot.html" class="chatbot-button">Go to Chatbot</a>
+            </div>
+        </div>  
+    </div>
+
+    <div class="how_pomo">
+        <h2 class="howpomo_head">How does it work ?</h2>
+        <pre>
+             It works like a 20 minute timer on steroids!
+             designed to study or work without procrastinating. 
+             Based on Pomodoro Technique, 
+             you can keep focused listening to soft music, 
+             checking your to do list, customizing the timer, 
+             and taking challenges to stay motivated, 
+             all with a clean and aesthetic design.</pre>
+    </div>
+
+    <footer>
+        <div class="footer-links">
+            <ul>
+                <li><a href="#">ABOUT</a></li>
+                <li><a href="#">CONTACTS</a></li>
+                <li><a href="#">PRIVACY</a></li>
+                <li><a href="todo.html">TO-DO-LIST</a></li>
+            </ul>
+        </div>
+
+        <div class="social-icons">
+            <span class="social-icon"><i class="fab fa-instagram"></i></span>
+            <span class="social-icon"><i class="fab fa-facebook-f"></i></span>
+            <span class="social-icon"><i class="fab fa-twitter"></i></span>
+        </div>
+        
+        <p class="madeby">Made with <span style="color: red;">&hearts;</span> by Aman</p>
+        <p class="cpyright">&copy; 2024 clockbyAman. All rights reserved.</p>
+    </footer>
+
+    <script>
+        let timer;
+        let minutes = 25;
+        let seconds = 0;
+        let running = false;
+
+        function updateTimerDisplay() {
+            document.getElementById("timer").textContent = `${formatTime(minutes)}:${formatTime(seconds)}`;
+        }
+
+        function formatTime(time) {
+            return time < 10 ? `0${time}` : time;
+        }
+
+        function startTimer() {
+            if (running) return;
+            running = true;
+            timer = setInterval(function () {
+                if (seconds === 0) {
+                    if (minutes === 0) {
+                        stopTimer();
+                        alert("Time's up!");
+                        return;
+                    }
+                    minutes--;
+                    seconds = 59;
+                } else {
+                    seconds--;
+                }
+                updateTimerDisplay();
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timer);
+            running = false;
+        }
+
+        function resetTimer() {
+            stopTimer();
+            minutes = 25;
+            seconds = 0;
+            updateTimerDisplay();
+        }
+
+        function setWorkTimer() {
+            minutes = 25;
+            seconds = 0;
+            updateTimerDisplay();
+            document.querySelectorAll('.option-buttons button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('work-btn').classList.add('active');
+        }
+
+        function setBreakTimer() {
+            minutes = 5;
+            seconds = 0;
+            updateTimerDisplay();
+            document.querySelectorAll('.option-buttons button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('break-btn').classList.add('active');
+        }
+
+        function setLongBreakTimer() {
+            minutes = 15;
+            seconds = 0;
+            updateTimerDisplay();
+            document.querySelectorAll('.option-buttons button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('long-break-btn').classList.add('active');
+        }
+
+        updateTimerDisplay();
+    </script>
+</body>
+</html>

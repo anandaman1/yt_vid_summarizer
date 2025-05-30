@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Persistent To-Do List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('https://img.freepik.com/free-photo/sky-sunset_1203-1666.jpg?t=st=1731005339~exp=1731008939~hmac=837336a422e506c91b40f296157805b111f415e90d2c8dde8b26e95603463aa9&w=996'); 
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; 
+            padding-top: 50px;
+        }
+
+        #taskContainer {
+    width: 400px;
+    background-color: rgba(135, 206, 235, 0.9); 
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    position: relative;
+    margin-top: 120px; 
+}
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        #mainInputContainer input {
+            width: calc(100% - 16px);
+            padding: 8px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .task-wrapper {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+
+        .task-wrapper input[type="text"] {
+            width: 100%;
+            font-size: 16px;
+            border: none;
+            background: none;
+            outline: none;
+            text-decoration: none;
+            color: #333;
+            margin-left: 8px;
+        }
+
+        .task-wrapper input[type="text"].completed {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        .task-wrapper input[type="checkbox"] {
+            transform: scale(1.2);
+        }
+
+        button {
+            padding: 8px 16px;
+            margin-top: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #message {
+    position: absolute;
+    top: 50px; 
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-size: 24px;
+    text-align: center;
+    font-weight: bold;
+}
+    </style>
+</head>
+<body>
+
+<div id="message">
+    Welcome to your To-Do List! Add tasks below.
+</div>
+
+<div id="taskContainer">
+    <h2>My To-Do List</h2>
+    <button onclick="clearAllTasks()">Clear All</button>
+    <div id="mainInputContainer">
+        <input type="text" id="mainInput" onkeyup="addTaskBox(event)" placeholder="Type your task and press Enter">
+    </div>
+</div>
+
+<script>
+    window.onload = function() {
+        loadTasks();
+    };
+
+    function addTaskBox(event) {
+        if (event.key === 'Enter') {
+            const currentTask = event.target.value.trim();
+            if (currentTask) {
+                saveTask(currentTask, false);
+                displayTask(currentTask, false);
+                event.target.value = '';
+            }
+        }
+    }
+
+    function saveTask(task, isCompleted) {
+        const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        tasks.push({ text: task, completed: isCompleted });
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    function displayTask(task, isCompleted) {
+        const taskWrapper = document.createElement('div');
+        taskWrapper.className = 'task-wrapper';
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = isCompleted;
+        checkbox.onchange = function() {
+            toggleTaskCompletion(task, checkbox.checked);
+        };
+
+        const taskText = document.createElement('input');
+        taskText.type = 'text';
+        taskText.value = task;
+        taskText.readOnly = true;
+        taskText.className = isCompleted ? 'completed' : '';
+
+        const deleteButton = document.createElement('button');
+        deleteButton.innerText = 'Delete';
+        deleteButton.style.marginLeft = '10px';
+        deleteButton.onclick = function() {
+            deleteTask(taskText.value);
+        };
+
+        taskWrapper.appendChild(checkbox);
+        taskWrapper.appendChild(taskText);
+        taskWrapper.appendChild(deleteButton);
+
+        const taskContainer = document.getElementById('taskContainer');
+        taskContainer.insertBefore(taskWrapper, document.getElementById('mainInputContainer'));
+    }
+
+    function loadTasks() {
+        const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        tasks.forEach(task => displayTask(task.text, task.completed));
+    }
+
+    function toggleTaskCompletion(taskText, isCompleted) {
+        const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+        for (let task of tasks) {
+            if (task.text === taskText) {
+                task.completed = isCompleted;
+                break;
+            }
+        }
+
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+
+        const taskWrappers = document.querySelectorAll('.task-wrapper input[type="text"]');
+        taskWrappers.forEach(taskBox => {
+            if (taskBox.value === taskText) {
+                taskBox.classList.toggle('completed', isCompleted);
+            }
+        });
+    }
+
+    function deleteTask(taskText) {
+        const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        const updatedTasks = tasks.filter(task => task.text !== taskText);
+
+        localStorage.setItem('tasks', JSON.stringify(updatedTasks));
+
+        const taskWrappers = document.querySelectorAll('.task-wrapper');
+        taskWrappers.forEach(wrapper => {
+            if (wrapper.querySelector('input[type="text"]').value === taskText) {
+                wrapper.remove();
+            }
+        });
+    }
+
+    function clearAllTasks() {
+        localStorage.removeItem('tasks');
+
+        const taskWrappers = document.querySelectorAll('.task-wrapper');
+        taskWrappers.forEach(wrapper => wrapper.remove());
+    }
+</script>
+
+</body>
+</html>
